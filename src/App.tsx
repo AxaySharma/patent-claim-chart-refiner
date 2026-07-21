@@ -1,6 +1,6 @@
 import React from 'react';
 import { mockClaimChart, mockChatMessages } from './mockData';
-import type { ClaimChart, ClaimElement, ChatMessage } from './types';
+import { useRefinement } from './hooks/useRefinement';
 import { SetupScreen } from './components/SetupScreen';
 import { ChartTable } from './components/ChartTable';
 import { ChatPanel } from './components/ChatPanel';
@@ -8,81 +8,39 @@ import { Shield, Search, SlidersHorizontal, Settings2, RotateCcw } from 'lucide-
 
 export function App() {
   const [currentView, setCurrentView] = React.useState<'setup' | 'session'>('setup');
-  const [chart, setChart] = React.useState<ClaimChart | null>(null);
   const [docFilename, setDocFilename] = React.useState<string>('Acme_Thermostat_Manual_v3.pdf');
   const [systemPrompt, setSystemPrompt] = React.useState<string>(
     'Focus on technical accuracy. Flag any weak reasoning.'
   );
 
-  const [activeElement, setActiveElement] = React.useState<ClaimElement | null>(null);
-  const [messages, setMessages] = React.useState<ChatMessage[]>(mockChatMessages);
   const [filterStatus, setFilterStatus] = React.useState<string>('all');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
 
-  const handleLoadMockChart = () => {
-    setChart(mockClaimChart);
-    if (mockClaimChart.elements.length > 0) {
-      setActiveElement(mockClaimChart.elements[0]);
-    }
-  };
+  const {
+    chart,
+    messages,
+    activeElementId,
+    activeElement,
+    flashElementId,
+    setActiveElementId,
+    handleSendMessage,
+    handleAcceptSuggestion,
+    handleRejectSuggestion,
+    updateElementDirectly,
+  } = useRefinement(mockClaimChart, mockChatMessages);
 
-  const handleUpdateElement = (updatedElement: ClaimElement) => {
-    if (!chart) return;
-    setChart({
-      ...chart,
-      elements: chart.elements.map((el) =>
-        el.id === updatedElement.id ? updatedElement : el
-      ),
-    });
-    if (activeElement?.id === updatedElement.id) {
-      setActiveElement(updatedElement);
-    }
-  };
+  const filteredElements = chart.elements.filter((el) => {
+    const matchesStatus = filterStatus === 'all' || el.status === filterStatus;
+    const matchesSearch =
+      el.patentClaimText.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      el.accusedFeatureText.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      el.evidenceSource.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
-  const handleSendMessage = (text: string) => {
-    const userMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      role: 'user',
-      content: text,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      relatedClaimElementId: activeElement?.id,
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-
-    // Simulate AI response
-    setTimeout(() => {
-      let aiText = `I have analyzed your feedback: "${text}".`;
-      if (activeElement) {
-        aiText += ` Target element #${activeElement.id.replace('elem-', '')} mapping updated to align with the system prompt rules.`;
-      }
-
-      const aiMsg: ChatMessage = {
-        id: `msg-${Date.now() + 1}`,
-        role: 'ai',
-        content: aiText,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        relatedClaimElementId: activeElement?.id,
-      };
-
-      setMessages((prev) => [...prev, aiMsg]);
-    }, 600);
-  };
-
-  const filteredElements = chart
-    ? chart.elements.filter((el) => {
-        const matchesStatus = filterStatus === 'all' || el.status === filterStatus;
-        const matchesSearch =
-          el.patentClaimText.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          el.accusedFeatureText.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          el.evidenceSource.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesStatus && matchesSearch;
-      })
-    : [];
-
-  const acceptedCount = chart ? chart.elements.filter((e) => e.status === 'accepted').length : 0;
-  const flaggedCount = chart ? chart.elements.filter((e) => e.status === 'flagged').length : 0;
-  const unreviewedCount = chart ? chart.elements.filter((e) => e.status === 'unreviewed').length : 0;
+  const acceptedCount = chart.elements.filter((e) => e.status === 'accepted').length;
+  const flaggedCount = chart.elements.filter((e) => e.status === 'flagged').length;
+  const unreviewedCount = chart.elements.filter((e) => e.status === 'unreviewed').length;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
@@ -100,7 +58,7 @@ export function App() {
               <p className="text-[11px] text-slate-500">
                 {currentView === 'setup'
                   ? 'Session Configuration'
-                  : `${chart?.targetProduct} Mapping Analysis`}
+                  : `${chart.targetProduct} Mapping Analysis`}
               </p>
             </div>
           </div>
@@ -134,8 +92,8 @@ export function App() {
       {currentView === 'setup' ? (
         <main className="flex-1 max-w-7xl w-full mx-auto">
           <SetupScreen
-            hasLoadedChart={!!chart}
-            onLoadMockChart={handleLoadMockChart}
+            hasLoadedChart={true}
+            onLoadMockChart={() => {}}
             docFilename={docFilename}
             onDocFileChange={setDocFilename}
             systemPrompt={systemPrompt}
@@ -193,27 +151,29 @@ export function App() {
 
           {/* Two-Panel Responsive Split Layout (60% / 40%) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 items-start">
-            {/* Left Panel: 60% width (7 cols of 12) */}
+            {/* Left Panel: 60% width */}
             <div className="lg:col-span-7 h-full">
-              {chart && (
-                <ChartTable
-                  chart={{
-                    ...chart,
-                    elements: filteredElements,
-                  }}
-                  activeElementId={activeElement?.id || null}
-                  onSelectElement={(el) => setActiveElement(el)}
-                  onUpdateElement={handleUpdateElement}
-                />
-              )}
+              <ChartTable
+                chart={{
+                  ...chart,
+                  elements: filteredElements,
+                }}
+                activeElementId={activeElementId}
+                flashElementId={flashElementId}
+                onSelectElement={(el) => setActiveElementId(el.id)}
+                onUpdateElement={updateElementDirectly}
+              />
             </div>
 
-            {/* Right Panel: 40% width (5 cols of 12) */}
+            {/* Right Panel: 40% width */}
             <div className="lg:col-span-5 h-full">
               <ChatPanel
                 messages={messages}
                 activeElement={activeElement}
                 onSendMessage={handleSendMessage}
+                onAcceptSuggestion={handleAcceptSuggestion}
+                onRejectSuggestion={handleRejectSuggestion}
+                onUploadDocClick={() => setCurrentView('setup')}
               />
             </div>
           </div>

@@ -9,12 +9,20 @@ export interface ClaimElement {
   status: ElementStatus;
 }
 
+export interface SuggestedChange {
+  field: 'accusedFeatureText' | 'evidenceSource' | 'aiReasoning';
+  newValue: string;
+  status?: 'pending' | 'accepted' | 'rejected';
+}
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'ai';
   content: string;
   timestamp: string;
   relatedClaimElementId?: string;
+  suggestedChange?: SuggestedChange;
+  requiresUploadDoc?: boolean;
 }
 
 export interface ClaimChart {

@@ -6,6 +6,7 @@ import { FileCode, Download, RefreshCw } from 'lucide-react';
 interface ChartTableProps {
   chart: ClaimChart;
   activeElementId: string | null;
+  flashElementId: string | null;
   onSelectElement: (element: ClaimElement) => void;
   onUpdateElement: (updated: ClaimElement) => void;
 }
@@ -13,6 +14,7 @@ interface ChartTableProps {
 export const ChartTable: React.FC<ChartTableProps> = ({
   chart,
   activeElementId,
+  flashElementId,
   onSelectElement,
   onUpdateElement,
 }) => {
@@ -58,6 +60,7 @@ export const ChartTable: React.FC<ChartTableProps> = ({
                 key={element.id}
                 element={element}
                 isActive={element.id === activeElementId}
+                isFlashing={element.id === flashElementId}
                 onSelect={() => onSelectElement(element)}
                 onUpdateElement={onUpdateElement}
               />

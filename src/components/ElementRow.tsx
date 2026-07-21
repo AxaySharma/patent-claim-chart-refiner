@@ -6,6 +6,7 @@ import { FileText, Edit3, Save, X, Bot, Check } from 'lucide-react';
 interface ElementRowProps {
   element: ClaimElement;
   isActive: boolean;
+  isFlashing?: boolean;
   onSelect: () => void;
   onUpdateElement: (updated: ClaimElement) => void;
 }
@@ -13,6 +14,7 @@ interface ElementRowProps {
 export const ElementRow: React.FC<ElementRowProps> = ({
   element,
   isActive,
+  isFlashing = false,
   onSelect,
   onUpdateElement,
 }) => {
@@ -43,8 +45,11 @@ export const ElementRow: React.FC<ElementRowProps> = ({
     setIsEditing(false);
   };
 
-  // Row status background colors: unreviewed (neutral), accepted (green tint), flagged (amber tint)
+  // Row status background colors with flash support
   const getStatusBg = () => {
+    if (isFlashing) {
+      return 'bg-emerald-200/90 transition-all duration-300 ring-2 ring-emerald-500';
+    }
     switch (element.status) {
       case 'accepted':
         return 'bg-emerald-50/40 hover:bg-emerald-50/70 border-emerald-100';
@@ -59,8 +64,8 @@ export const ElementRow: React.FC<ElementRowProps> = ({
   return (
     <tr
       onClick={onSelect}
-      className={`border-b transition-colors cursor-pointer ${getStatusBg()} ${
-        isActive ? 'ring-2 ring-slate-900 ring-inset z-10' : ''
+      className={`border-b transition-all duration-300 cursor-pointer ${getStatusBg()} ${
+        isActive && !isFlashing ? 'ring-2 ring-slate-900 ring-inset z-10' : ''
       }`}
     >
       {/* 1. Patent Claim Element */}
@@ -97,7 +102,7 @@ export const ElementRow: React.FC<ElementRowProps> = ({
             <p className="text-xs font-medium text-slate-900 leading-relaxed">
               {element.accusedFeatureText}
             </p>
-            <div className="flex items-start gap-1.5 text-[11px] text-slate-500 bg-white/70 p-2 rounded border border-slate-200/60">
+            <div className="flex items-start gap-1.5 text-[11px] text-slate-500 bg-white/80 p-2 rounded border border-slate-200/60">
               <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
               <span>{element.evidenceSource}</span>
             </div>
@@ -142,7 +147,7 @@ export const ElementRow: React.FC<ElementRowProps> = ({
               </button>
             </div>
 
-            <div className="text-xs text-slate-700 bg-white/80 p-2.5 rounded border border-slate-200/80 flex items-start gap-2">
+            <div className="text-xs text-slate-700 bg-white/90 p-2.5 rounded border border-slate-200/80 flex items-start gap-2">
               <Bot className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
               <p className="leading-relaxed text-[11px]">{element.aiReasoning}</p>
             </div>
