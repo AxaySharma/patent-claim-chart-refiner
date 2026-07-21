@@ -10,7 +10,7 @@ This project explores a different interaction model: what if refinement happened
 
 ## Live demo
 
-**[View the deployed prototype →](https://your-app-name.vercel.app)**
+**[View the deployed prototype →](https://patent-claim-chart-refiner.vercel.app/)**
 
 ## Features
 
