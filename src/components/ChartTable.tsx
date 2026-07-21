@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ClaimChart, ClaimElement } from '../types';
 import { ElementRow } from './ElementRow';
-import { FileCode, Download, RefreshCw } from 'lucide-react';
+import { FileCode, RefreshCw, FileDown } from 'lucide-react';
 
 interface ChartTableProps {
   chart: ClaimChart;
@@ -9,6 +9,7 @@ interface ChartTableProps {
   flashElementId: string | null;
   onSelectElement: (element: ClaimElement) => void;
   onUpdateElement: (updated: ClaimElement) => void;
+  onExportWord: () => void;
 }
 
 export const ChartTable: React.FC<ChartTableProps> = ({
@@ -17,6 +18,7 @@ export const ChartTable: React.FC<ChartTableProps> = ({
   flashElementId,
   onSelectElement,
   onUpdateElement,
+  onExportWord,
 }) => {
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col h-full">
@@ -37,9 +39,12 @@ export const ChartTable: React.FC<ChartTableProps> = ({
             <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
             Re-evaluate
           </button>
-          <button className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-white bg-slate-900 rounded hover:bg-slate-800 transition-colors">
-            <Download className="w-3.5 h-3.5" />
-            Export Chart
+          <button
+            onClick={onExportWord}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-white bg-slate-900 hover:bg-slate-800 rounded transition-colors shadow-xs"
+          >
+            <FileDown className="w-3.5 h-3.5" />
+            Export to Word
           </button>
         </div>
       </div>

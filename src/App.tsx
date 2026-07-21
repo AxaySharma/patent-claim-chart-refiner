@@ -4,7 +4,7 @@ import { useRefinement } from './hooks/useRefinement';
 import { SetupScreen } from './components/SetupScreen';
 import { ChartTable } from './components/ChartTable';
 import { ChatPanel } from './components/ChatPanel';
-import { Shield, Search, SlidersHorizontal, Settings2, RotateCcw } from 'lucide-react';
+import { Shield, Search, SlidersHorizontal, Settings2, RotateCcw, CheckCircle, FileDown } from 'lucide-react';
 
 export function App() {
   const [currentView, setCurrentView] = React.useState<'setup' | 'session'>('setup');
@@ -12,6 +12,9 @@ export function App() {
   const [systemPrompt, setSystemPrompt] = React.useState<string>(
     'Focus on technical accuracy. Flag any weak reasoning.'
   );
+  
+  // Toast state for simulated export
+  const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
   const [filterStatus, setFilterStatus] = React.useState<string>('all');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
@@ -29,6 +32,17 @@ export function App() {
     updateElementDirectly,
   } = useRefinement(mockClaimChart, mockChatMessages);
 
+  const triggerToast = (message: string) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3000);
+  };
+
+  const handleExportWord = () => {
+    triggerToast("Claim chart exported (simulated for prototype)");
+  };
+
   const filteredElements = chart.elements.filter((el) => {
     const matchesStatus = filterStatus === 'all' || el.status === filterStatus;
     const matchesSearch =
@@ -43,7 +57,15 @@ export function App() {
   const unreviewedCount = chart.elements.filter((e) => e.status === 'unreviewed').length;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col relative">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 border border-slate-700 animate-in fade-in slide-in-from-top-4 duration-300">
+          <CheckCircle className="w-4 h-4 text-emerald-400" />
+          <span className="text-xs font-semibold">{toastMessage}</span>
+        </div>
+      )}
+
       {/* Top Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
@@ -58,33 +80,42 @@ export function App() {
               <p className="text-[11px] text-slate-500">
                 {currentView === 'setup'
                   ? 'Session Configuration'
-                  : `${chart.targetProduct} Mapping Analysis`}
+                  : 'Claim Chart Refinement — US 9,876,543 B2 vs Acme Thermostat'}
               </p>
             </div>
           </div>
 
-          {currentView === 'session' && (
-            <div className="flex items-center gap-3">
-              <div className="hidden md:flex items-center gap-3 text-xs">
-                <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium">
-                  {acceptedCount} Accepted
-                </span>
-                <span className="inline-flex items-center gap-1 text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-medium">
-                  {flaggedCount} Flagged
-                </span>
-                <span className="inline-flex items-center gap-1 text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 font-medium">
-                  {unreviewedCount} Unreviewed
-                </span>
-              </div>
-              <button
-                onClick={() => setCurrentView('setup')}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition-colors"
-              >
-                <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
-                Setup
-              </button>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {currentView === 'session' ? (
+              <>
+                <div className="hidden md:flex items-center gap-3 text-xs">
+                  <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-medium">
+                    {acceptedCount} Accepted
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-medium">
+                    {flaggedCount} Flagged
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 font-medium">
+                    {unreviewedCount} Unreviewed
+                  </span>
+                </div>
+                <button
+                  onClick={handleExportWord}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded transition-colors shadow-xs"
+                >
+                  <FileDown className="w-3.5 h-3.5" />
+                  Export to Word
+                </button>
+                <button
+                  onClick={() => setCurrentView('setup')}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded transition-colors"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                  Setup
+                </button>
+              </>
+            ) : null}
+          </div>
         </div>
       </header>
 
@@ -162,6 +193,7 @@ export function App() {
                 flashElementId={flashElementId}
                 onSelectElement={(el) => setActiveElementId(el.id)}
                 onUpdateElement={updateElementDirectly}
+                onExportWord={handleExportWord}
               />
             </div>
 
