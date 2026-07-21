@@ -1,7 +1,7 @@
 import React from 'react';
-import type { ClaimElement, ClaimStatus } from '../types';
+import type { ClaimElement, ElementStatus } from '../types';
 import { StatusBadge } from './StatusBadge';
-import { FileText, Edit3, Save, X } from 'lucide-react';
+import { FileText, Edit3, Save, X, Bot } from 'lucide-react';
 
 interface ElementRowProps {
   element: ClaimElement;
@@ -10,38 +10,35 @@ interface ElementRowProps {
 
 export const ElementRow: React.FC<ElementRowProps> = ({ element, onUpdateElement }) => {
   const [isEditing, setIsEditing] = React.useState(false);
-  const [mapping, setMapping] = React.useState(element.priorArtMapping);
-  const [notes, setNotes] = React.useState(element.notes || '');
-  const [status, setStatus] = React.useState<ClaimStatus>(element.status);
+  const [accusedFeatureText, setAccusedFeatureText] = React.useState(element.accusedFeatureText);
+  const [evidenceSource, setEvidenceSource] = React.useState(element.evidenceSource);
+  const [aiReasoning, setAiReasoning] = React.useState(element.aiReasoning);
+  const [status, setStatus] = React.useState<ElementStatus>(element.status);
 
   const handleSave = () => {
     onUpdateElement({
       ...element,
-      priorArtMapping: mapping,
-      notes: notes,
-      status: status,
+      accusedFeatureText,
+      evidenceSource,
+      aiReasoning,
+      status,
     });
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setMapping(element.priorArtMapping);
-    setNotes(element.notes || '');
+    setAccusedFeatureText(element.accusedFeatureText);
+    setEvidenceSource(element.evidenceSource);
+    setAiReasoning(element.aiReasoning);
     setStatus(element.status);
     setIsEditing(false);
   };
 
   return (
     <tr className="border-b border-slate-200 hover:bg-slate-50/50 transition-colors">
-      <td className="py-4 px-4 align-top w-28">
-        <span className="font-mono text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded">
-          {element.elementNumber}
-        </span>
-      </td>
-
       <td className="py-4 px-4 align-top w-1/3">
         <p className="text-sm text-slate-800 leading-relaxed font-normal">
-          {element.text}
+          {element.patentClaimText}
         </p>
       </td>
 
@@ -51,66 +48,65 @@ export const ElementRow: React.FC<ElementRowProps> = ({ element, onUpdateElement
             <textarea
               className="w-full text-sm border border-slate-300 rounded p-2 focus:ring-1 focus:ring-slate-400 focus:outline-none bg-white"
               rows={3}
-              value={mapping}
-              onChange={(e) => setMapping(e.target.value)}
-              placeholder="Enter target product or prior art mapping..."
+              value={accusedFeatureText}
+              onChange={(e) => setAccusedFeatureText(e.target.value)}
+              placeholder="Accused product feature description..."
             />
             <input
               type="text"
               className="w-full text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-slate-400 focus:outline-none bg-white"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Refinement notes..."
+              value={evidenceSource}
+              onChange={(e) => setEvidenceSource(e.target.value)}
+              placeholder="Evidence source / citation..."
             />
           </div>
         ) : (
-          <div className="space-y-1.5">
-            <p className="text-sm font-medium text-slate-900">
-              {element.priorArtMapping || <span className="text-slate-400 italic">No mapping defined</span>}
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-slate-900 leading-relaxed">
+              {element.accusedFeatureText}
             </p>
-            {element.notes && (
-              <p className="text-xs text-slate-500 bg-slate-100/80 p-2 rounded border border-slate-200/60">
-                {element.notes}
-              </p>
-            )}
-            {element.citations.length > 0 && (
-              <div className="mt-2 space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                  Citations ({element.citations.length})
-                </span>
-                {element.citations.map((cit) => (
-                  <div key={cit.id} className="text-xs text-slate-600 flex items-start gap-1.5 bg-slate-50 p-1.5 rounded border border-slate-200">
-                    <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
-                    <div>
-                      <span className="font-medium text-slate-700">{cit.sourceDocument}</span> ({cit.section})
-                      <p className="text-slate-500 italic mt-0.5 text-[11px]">"{cit.text}"</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="flex items-start gap-1.5 text-xs text-slate-500 bg-slate-100/80 p-2 rounded border border-slate-200/60">
+              <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
+              <span>{element.evidenceSource}</span>
+            </div>
           </div>
         )}
       </td>
 
-      <td className="py-4 px-4 align-top w-40">
+      <td className="py-4 px-4 align-top w-1/3">
+        {isEditing ? (
+          <textarea
+            className="w-full text-xs border border-slate-300 rounded p-2 focus:ring-1 focus:ring-slate-400 focus:outline-none bg-white"
+            rows={4}
+            value={aiReasoning}
+            onChange={(e) => setAiReasoning(e.target.value)}
+            placeholder="AI reasoning..."
+          />
+        ) : (
+          <div className="text-xs text-slate-700 bg-slate-50 p-2.5 rounded border border-slate-200/80 flex items-start gap-2">
+            <Bot className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+            <p className="leading-relaxed">{element.aiReasoning}</p>
+          </div>
+        )}
+      </td>
+
+      <td className="py-4 px-4 align-top w-36">
         {isEditing ? (
           <select
             className="w-full text-xs border border-slate-300 rounded p-1.5 focus:ring-1 focus:ring-slate-400 focus:outline-none bg-white"
             value={status}
-            onChange={(e) => setStatus(e.target.value as ClaimStatus)}
+            onChange={(e) => setStatus(e.target.value as ElementStatus)}
           >
-            <option value="verified">Verified Match</option>
-            <option value="needs_review">Needs Review</option>
-            <option value="refinement_suggested">Refinement Suggested</option>
-            <option value="unmapped">Unmapped</option>
+            <option value="unreviewed">Unreviewed</option>
+            <option value="accepted">Accepted</option>
+            <option value="flagged">Flagged</option>
           </select>
         ) : (
           <StatusBadge status={element.status} />
         )}
       </td>
 
-      <td className="py-4 px-4 align-top text-right w-24">
+      <td className="py-4 px-4 align-top text-right w-20">
         {isEditing ? (
           <div className="flex items-center justify-end gap-1">
             <button
@@ -132,7 +128,7 @@ export const ElementRow: React.FC<ElementRowProps> = ({ element, onUpdateElement
           <button
             onClick={() => setIsEditing(true)}
             className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors"
-            title="Edit Element Mapping"
+            title="Edit Mapping & Reasoning"
           >
             <Edit3 className="w-4 h-4" />
           </button>

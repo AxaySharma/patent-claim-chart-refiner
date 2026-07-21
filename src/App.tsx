@@ -21,14 +21,15 @@ export function App() {
   const filteredElements = chart.elements.filter((el) => {
     const matchesStatus = filterStatus === 'all' || el.status === filterStatus;
     const matchesSearch =
-      el.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      el.priorArtMapping.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      el.elementNumber.toLowerCase().includes(searchQuery.toLowerCase());
+      el.patentClaimText.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      el.accusedFeatureText.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      el.evidenceSource.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
 
-  const verifiedCount = chart.elements.filter((e) => e.status === 'verified').length;
-  const reviewCount = chart.elements.filter((e) => e.status === 'needs_review').length;
+  const acceptedCount = chart.elements.filter((e) => e.status === 'accepted').length;
+  const flaggedCount = chart.elements.filter((e) => e.status === 'flagged').length;
+  const unreviewedCount = chart.elements.filter((e) => e.status === 'unreviewed').length;
   const totalCount = chart.elements.length;
 
   return (
@@ -45,7 +46,7 @@ export function App() {
                 Patent Claim Chart Refiner
               </h1>
               <p className="text-xs text-slate-500">
-                Analysis & Mapping Quality Control Platform
+                Acme Smart Thermostat v3.0 Mapping Analysis
               </p>
             </div>
           </div>
@@ -68,18 +69,16 @@ export function App() {
             <div className="text-2xl font-bold text-slate-900 mt-1">{totalCount}</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
-            <span className="text-xs font-medium text-slate-500">Verified Matches</span>
-            <div className="text-2xl font-bold text-emerald-600 mt-1">{verifiedCount}</div>
+            <span className="text-xs font-medium text-slate-500">Accepted Elements</span>
+            <div className="text-2xl font-bold text-emerald-600 mt-1">{acceptedCount}</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
-            <span className="text-xs font-medium text-slate-500">Needs Review</span>
-            <div className="text-2xl font-bold text-amber-600 mt-1">{reviewCount}</div>
+            <span className="text-xs font-medium text-slate-500">Flagged Elements</span>
+            <div className="text-2xl font-bold text-rose-600 mt-1">{flaggedCount}</div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
-            <span className="text-xs font-medium text-slate-500">Chart Quality Score</span>
-            <div className="text-2xl font-bold text-slate-900 mt-1">
-              {Math.round((verifiedCount / totalCount) * 100)}%
-            </div>
+            <span className="text-xs font-medium text-slate-500">Unreviewed Elements</span>
+            <div className="text-2xl font-bold text-slate-600 mt-1">{unreviewedCount}</div>
           </div>
         </div>
 
@@ -89,7 +88,7 @@ export function App() {
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search claim text or mappings..."
+              placeholder="Search claim text, evidence, or features..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full text-xs pl-9 pr-3 py-2 border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-slate-400 bg-slate-50/50"
@@ -105,10 +104,9 @@ export function App() {
               className="text-xs border border-slate-200 rounded px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-slate-400 bg-white text-slate-700"
             >
               <option value="all">All Statuses</option>
-              <option value="verified">Verified Match</option>
-              <option value="needs_review">Needs Review</option>
-              <option value="refinement_suggested">Refinement Suggested</option>
-              <option value="unmapped">Unmapped</option>
+              <option value="unreviewed">Unreviewed</option>
+              <option value="accepted">Accepted</option>
+              <option value="flagged">Flagged</option>
             </select>
           </div>
         </div>

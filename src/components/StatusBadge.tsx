@@ -1,45 +1,37 @@
 import React from 'react';
-import { ShieldCheck, AlertCircle, Sparkles, HelpCircle } from 'lucide-react';
-import type { ClaimStatus } from '../types';
+import { CheckCircle2, AlertTriangle, Clock } from 'lucide-react';
+import type { ElementStatus } from '../types';
 
 interface StatusBadgeProps {
-  status: ClaimStatus;
-  onChange?: (newStatus: ClaimStatus) => void;
+  status: ElementStatus;
 }
 
-const statusConfig: Record<ClaimStatus, { label: string; bg: string; text: string; border: string; icon: React.ElementType }> = {
-  verified: {
-    label: 'Verified Match',
+const statusConfig: Record<ElementStatus, { label: string; bg: string; text: string; border: string; icon: React.ElementType }> = {
+  accepted: {
+    label: 'Accepted',
     bg: 'bg-emerald-50',
     text: 'text-emerald-700',
     border: 'border-emerald-200',
-    icon: ShieldCheck,
+    icon: CheckCircle2,
   },
-  needs_review: {
-    label: 'Needs Review',
-    bg: 'bg-amber-50',
-    text: 'text-amber-700',
-    border: 'border-amber-200',
-    icon: AlertCircle,
+  flagged: {
+    label: 'Flagged',
+    bg: 'bg-rose-50',
+    text: 'text-rose-700',
+    border: 'border-rose-200',
+    icon: AlertTriangle,
   },
-  refinement_suggested: {
-    label: 'Refinement Suggested',
-    bg: 'bg-blue-50',
-    text: 'text-blue-700',
-    border: 'border-blue-200',
-    icon: Sparkles,
-  },
-  unmapped: {
-    label: 'Unmapped',
+  unreviewed: {
+    label: 'Unreviewed',
     bg: 'bg-slate-100',
     text: 'text-slate-600',
     border: 'border-slate-200',
-    icon: HelpCircle,
+    icon: Clock,
   },
 };
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
-  const config = statusConfig[status];
+  const config = statusConfig[status] || statusConfig.unreviewed;
   const Icon = config.icon;
 
   return (

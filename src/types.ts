@@ -1,21 +1,20 @@
-export type ClaimStatus = 'verified' | 'needs_review' | 'refinement_suggested' | 'unmapped';
-
-export interface Citation {
-  id: string;
-  sourceDocument: string;
-  section: string;
-  text: string;
-  relevanceScore: number;
-}
+export type ElementStatus = 'unreviewed' | 'accepted' | 'flagged';
 
 export interface ClaimElement {
   id: string;
-  elementNumber: string;
-  text: string;
-  priorArtMapping: string;
-  status: ClaimStatus;
-  notes?: string;
-  citations: Citation[];
+  patentClaimText: string;
+  accusedFeatureText: string;
+  evidenceSource: string;
+  aiReasoning: string;
+  status: ElementStatus;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'ai';
+  content: string;
+  timestamp: string;
+  relatedClaimElementId?: string;
 }
 
 export interface ClaimChart {

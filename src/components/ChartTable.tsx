@@ -28,11 +28,11 @@ export const ChartTable: React.FC<ChartTableProps> = ({ chart, onUpdateElement }
         <div className="flex items-center gap-2">
           <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded hover:bg-slate-50 shadow-xs transition-colors">
             <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
-            Re-analyze Chart
+            Re-evaluate Mappings
           </button>
           <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-slate-900 rounded hover:bg-slate-800 shadow-xs transition-colors">
             <Download className="w-3.5 h-3.5" />
-            Export (PDF/Docx)
+            Export Claim Chart
           </button>
         </div>
       </div>
@@ -41,11 +41,11 @@ export const ChartTable: React.FC<ChartTableProps> = ({ chart, onUpdateElement }
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-100/70 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-              <th className="py-3 px-4">Element #</th>
-              <th className="py-3 px-4">Claim Language</th>
-              <th className="py-3 px-4">Prior Art / Product Mapping</th>
-              <th className="py-3 px-4">Status</th>
-              <th className="py-3 px-4 text-right">Actions</th>
+              <th className="py-3 px-4 w-1/3">Patent Claim Element</th>
+              <th className="py-3 px-4 w-1/3">Accused Product Feature & Evidence</th>
+              <th className="py-3 px-4 w-1/3">AI Reasoning</th>
+              <th className="py-3 px-4 w-36">Status</th>
+              <th className="py-3 px-4 text-right w-20">Actions</th>
             </tr>
           </thead>
           <tbody>
